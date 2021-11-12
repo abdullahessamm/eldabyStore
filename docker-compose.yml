@@ -1,0 +1,47 @@
+version: "3.0"
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    container_name: mysql_eldaby
+    environment:
+      MYSQL_ROOT_PASSWORD: 'loveCoding0@#'
+      MYSQL_USER: 'abdullah'
+      MYSQL_PASSWORD: 'loveCoding0@#'
+      MYSQL_DATABASE: 'eldaby_store'
+    volumes:
+      - ./database/:/var/www/lib/mysql/
+    expose:
+      - 3306
+  php:
+    build:
+      context: ./php_server
+    restart: always
+    container_name: "php_eldaby"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: abdullah
+      DB_PASSWORD: 'loveCoding0@#'
+      DB_NAME: eldaby_store
+    expose:
+      - 9000
+    volumes:
+      - ./src/:/var/www/html/
+
+
+  nginx:
+    image: "nginx:latest"
+    restart: always
+    container_name: "nginx_eldaby"
+    depends_on:
+      - php
+      - db
+    volumes:
+      - ./nginx_server:/etc/nginx/conf.d
+      - ./src/:/var/www/html/
+    ports:
+      - 80:80
